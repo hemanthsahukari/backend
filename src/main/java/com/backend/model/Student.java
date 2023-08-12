@@ -2,6 +2,7 @@ package com.backend.model;
 
 import javax.persistence.*;
 
+
 @Entity
 @Table(name="student_table")
 public class Student {
@@ -11,6 +12,7 @@ public class Student {
     private String name;
     private String email;
     private String pNo;
+
 
     public long getId() {
         return id;
@@ -43,4 +45,6 @@ public class Student {
     public void setpNo(String pNo) {
         this.pNo = pNo;
     }
+
+
 }

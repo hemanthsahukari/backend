@@ -11,4 +11,6 @@ public interface BookService {
     Book updateBook(Book book);
     void borrowBook(long id);
     void returnBook(long id);
+
+    List<Book> getBookByTitle(String title);
 }

@@ -23,6 +23,10 @@ public class BookServiceImpl implements BookService {
     public Book getBookById(long id) {
         return bookRepository.findById(id).orElse(null);
     }
+    @Override
+    public List<Book> getBookByTitle(String title) {
+        return bookRepository.findByTitle(title);
+    }
 
     @Override
     public List<Book> getBooks() {
@@ -57,4 +61,5 @@ public class BookServiceImpl implements BookService {
             bookRepository.save(book);
         }
     }
+
 }

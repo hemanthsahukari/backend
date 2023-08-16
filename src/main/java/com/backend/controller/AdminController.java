@@ -28,7 +28,7 @@ public class AdminController {
         if (adminService.getAllAdmins().isEmpty()) {
             Admin admin = new Admin();
             admin.setUsername("admin");
-            admin.setPassword("admin");
+            admin.setPassword("@dm!n");
             adminService.addAdmin(admin);
         }
     }

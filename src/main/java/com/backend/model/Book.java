@@ -1,6 +1,7 @@
 package com.backend.model;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name = "book_table")
@@ -12,6 +13,41 @@ public class Book {
     private String title;
     private String author;
     private Boolean available;
+
+
+    @ManyToOne
+    @JoinColumn(name = "student_id")
+    private Student borrowBy;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date borrowDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date returnDate;
+
+    public Student getBorrowBy() {
+        return borrowBy;
+    }
+
+    public void setBorrowBy(Student borrowBy) {
+        this.borrowBy = borrowBy;
+    }
+
+    public Date getBorrowDate() {
+        return borrowDate;
+    }
+
+    public void setBorrowDate(Date borrowDate) {
+        this.borrowDate = borrowDate;
+    }
+
+    public Date getReturnDate() {
+        return returnDate;
+    }
+
+    public void setReturnDate(Date returnDate) {
+        this.returnDate = returnDate;
+    }
+    //until here...
+
 
     public long getId() {
         return id;

@@ -18,14 +18,14 @@
 //                .antMatchers("/admin/**").hasRole("ADMIN")
 //                .anyRequest().permitAll()
 //                .and()
-//                .httpBasic(); // Use basic authentication for admin login
+//                .httpBasic();
 //    }
 //
 //    @Autowired
 //    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 //        auth.inMemoryAuthentication()
 //                .withUser("admin")
-//                .password("{noop}admin") // Use proper password encoding here
+//                .password("{noop}admin")
 //                .roles("ADMIN");
 //    }
 //}

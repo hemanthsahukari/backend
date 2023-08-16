@@ -1,6 +1,8 @@
 package com.backend.model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -13,6 +15,27 @@ public class Student {
     private String email;
     private String pNo;
 
+
+    public List<Book> getBorrowedBooks() {
+        return borrowedBooks;
+    }
+
+    public void setBorrowedBooks(List<Book> borrowedBooks) {
+        this.borrowedBooks = borrowedBooks;
+    }
+
+    @OneToMany(mappedBy = "borrowBy")
+    private List<Book> borrowedBooks = new ArrayList<>();
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    private String password;
+    private double fineAmount;
 
     public long getId() {
         return id;
@@ -46,5 +69,11 @@ public class Student {
         this.pNo = pNo;
     }
 
+    public double getFineAmount() {
+        return fineAmount;
+    }
 
+    public void setFineAmount(double fineAmount) {
+        this.fineAmount = fineAmount;
+    }
 }

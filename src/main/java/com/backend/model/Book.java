@@ -1,5 +1,7 @@
 package com.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -17,6 +19,7 @@ public class Book {
 
     @ManyToOne
     @JoinColumn(name = "student_id")
+    @JsonIgnore
     private Student borrowBy;
     @Temporal(TemporalType.TIMESTAMP)
     private Date borrowDate;
@@ -46,7 +49,6 @@ public class Book {
     public void setReturnDate(Date returnDate) {
         this.returnDate = returnDate;
     }
-    //until here...
 
 
     public long getId() {

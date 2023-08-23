@@ -26,6 +26,7 @@ public class Student {
 
     @OneToMany(mappedBy = "borrowBy")
     private List<Book> borrowedBooks = new ArrayList<>();
+
     public String getPassword() {
         return password;
     }

@@ -12,6 +12,11 @@ import java.util.Optional;
 @Repository
 public interface BookRepository extends CrudRepository<Book, Long> {
 
-//    @Query("select b from book_table b where title=?1")
     List<Book> findByTitle(String title);
+
+    List<Book> findByAvailableFalse();
+
+    List<Book> findByAuthor(String author);
+
+//    List<Book> findByAuthor(String author);
 }

@@ -1,16 +1,16 @@
 package com.backend.controller;
 
+import com.backend.DTO.BorrowedBooks;
 import com.backend.model.Book;
 
 import com.backend.model.Student;
 import com.backend.service.BookService;
 import com.backend.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/books")
@@ -36,6 +36,30 @@ public class BookController {
     public List<Book> getBookByTitle(@PathVariable("title") String title) {
         return bookService.getBookByTitle(title);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Book>> searchBooks(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String author,
+            @RequestParam(required = false) String title) {
+        List<Book> books = new ArrayList<>();
+
+        if (id != null) {
+            Book book = bookService.getBookById(id);
+            books.add(book);
+        } else if (author != null) {
+            books = bookService.getBookByAuthor(author);
+        } else if (title != null) {
+            books = bookService.getBookByTitle(title);
+        }
+
+        return ResponseEntity.ok(books);
+    }
+    //find books by author
+//    @GetMapping("/search/{author}")
+//    public List<Book> getBookByAuthor(@PathVariable("author") String author) {
+//        return bookService.getBookByAuthor(author);
+//    }
 
     @GetMapping("/all")
     public List<Book> getBooks() {
@@ -93,6 +117,27 @@ public class BookController {
         } else {
             return "Book not found";
         }
+    }
+    @GetMapping("/borrowed")
+    public  List<BorrowedBooks> getBorrowedBooks(){
+        List<Book> bookList = bookService.getBorrowedBooks();
+        List<BorrowedBooks> borrowedBooksList = new ArrayList<>();
+        for(Book book : bookList) {
+            BorrowedBooks borrowedBooks = new BorrowedBooks();
+            borrowedBooks.setId(book.getId());
+            borrowedBooks.setTitle(book.getTitle());
+            borrowedBooks.setAuthor(book.getAuthor());
+            borrowedBooks.setAvailable(book.getAvailable());
+            borrowedBooks.setBorrowBy(book.getBorrowBy().getName());
+            borrowedBooks.setBorrowDate(book.getBorrowDate());
+            borrowedBooks.setReturnDate(book.getReturnDate());
+            double fineAmount = studentService.calculateFine(book.getBorrowDate(), book.getReturnDate());
+            borrowedBooks.setFineAmount(fineAmount);
+            borrowedBooksList.add(borrowedBooks);
+
+
+        }
+        return borrowedBooksList;
     }
 
 }

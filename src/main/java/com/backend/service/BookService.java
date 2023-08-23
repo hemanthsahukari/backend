@@ -13,4 +13,8 @@ public interface BookService {
     void returnBook(long id);
 
     List<Book> getBookByTitle(String title);
+
+    List<Book> getBookByAuthor(String author);
+    List<Book> getBorrowedBooks();
+
 }

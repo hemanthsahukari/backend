@@ -29,6 +29,16 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public List<Book> getBookByAuthor(String author) {
+        return bookRepository.findByAuthor(author);
+    }
+    //Find by author..
+//    @Override
+//    public List<Book> getBookByAuthor(String author) {
+//        return bookRepository.findByAuthor(author);
+//    }
+
+    @Override
     public List<Book> getBooks() {
         return (List<Book>) bookRepository.findAll();
     }
@@ -60,6 +70,10 @@ public class BookServiceImpl implements BookService {
             book.setAvailable(true);
             bookRepository.save(book);
         }
+    }
+    @Override
+    public List<Book> getBorrowedBooks(){
+        return bookRepository.findByAvailableFalse();
     }
 
 }

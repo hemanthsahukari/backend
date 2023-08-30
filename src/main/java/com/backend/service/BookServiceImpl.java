@@ -5,6 +5,8 @@ import com.backend.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -12,6 +14,8 @@ public class BookServiceImpl implements BookService {
 
     @Autowired
     private BookRepository bookRepository;
+    @Autowired
+    private StudentService studentService;
 
     @Override
     public Book addBook(Book book) {
@@ -32,11 +36,6 @@ public class BookServiceImpl implements BookService {
     public List<Book> getBookByAuthor(String author) {
         return bookRepository.findByAuthor(author);
     }
-    //Find by author..
-//    @Override
-//    public List<Book> getBookByAuthor(String author) {
-//        return bookRepository.findByAuthor(author);
-//    }
 
     @Override
     public List<Book> getBooks() {
@@ -75,5 +74,50 @@ public class BookServiceImpl implements BookService {
     public List<Book> getBorrowedBooks(){
         return bookRepository.findByAvailableFalse();
     }
+    @Override
+    public void addMultipleBooks(List<Book> books) {
+        bookRepository.saveAll(books);
+    }
+
+
+    @Override
+    public void renewBook(long id) {
+        Book book = bookRepository.findById(id).orElse(null);
+        if (book != null && !book.getAvailable()) {
+            Date currentDate = new Date();
+            if (currentDate.before(book.getReturnDate())) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(currentDate);
+                cal.add(Calendar.DAY_OF_MONTH, 14);
+                book.setReturnDate(cal.getTime());
+                bookRepository.save(book);
+            }
+        }
+    }
+
+//    @Override
+//    public void reserveBook(long id) {
+//        Book book = bookRepository.findById(id).orElse(null);
+//        if (book == null || book.getAvailable()) {
+//            throw new IllegalArgumentException("Book not found or already available");
+//        }
+//        book.setAvailable(true);
+//        book.setBorrowBy(null);
+//        book.setBorrowDate(null);
+//        book.setReturnDate(null);
+//        String reservedBy = book.getReservedBy();
+//        if (reservedBy != null) {
+//            book.setReservedBy(null);
+//            book.setAvailable(false);
+//            book.setBorrowBy(studentService.getCurrentLoggedInStudent(reservedBy));
+//            book.setBorrowDate(new Date());
+//            Calendar cal = Calendar.getInstance();
+//            cal.setTime(book.getBorrowDate());
+//            cal.add(Calendar.DAY_OF_MONTH, 14);
+//            book.setReturnDate(cal.getTime());
+//        }
+//        bookRepository.save(book);
+//    }
+
 
 }

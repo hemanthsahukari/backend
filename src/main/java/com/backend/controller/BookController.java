@@ -27,7 +27,6 @@ public class BookController {
         bookService.addBook(book);
         return "Book added successfully";
     }
-
     @GetMapping("/{id}")
     public Book getBookById(@PathVariable("id") long id) {
         return bookService.getBookById(id);
@@ -55,12 +54,6 @@ public class BookController {
 
         return ResponseEntity.ok(books);
     }
-    //find books by author
-//    @GetMapping("/search/{author}")
-//    public List<Book> getBookByAuthor(@PathVariable("author") String author) {
-//        return bookService.getBookByAuthor(author);
-//    }
-
     @GetMapping("/all")
     public List<Book> getBooks() {
         return bookService.getBooks();
@@ -87,7 +80,7 @@ public class BookController {
             book.setBorrowDate(new Date());
             Calendar cal = Calendar.getInstance();
             cal.setTime(book.getBorrowDate());
-            cal.add(Calendar.DAY_OF_MONTH, 14);
+            cal.add(Calendar.DAY_OF_MONTH, 7);
             book.setReturnDate(cal.getTime());
             bookService.updateBook(book);
             return "Book borrowed successfully";
@@ -128,16 +121,45 @@ public class BookController {
             borrowedBooks.setTitle(book.getTitle());
             borrowedBooks.setAuthor(book.getAuthor());
             borrowedBooks.setAvailable(book.getAvailable());
+            //null pointer exception need to fix: when a user borrrow it should define the name of user but showing undefined
             borrowedBooks.setBorrowBy(book.getBorrowBy().getName());
             borrowedBooks.setBorrowDate(book.getBorrowDate());
             borrowedBooks.setReturnDate(book.getReturnDate());
             double fineAmount = studentService.calculateFine(book.getBorrowDate(), book.getReturnDate());
             borrowedBooks.setFineAmount(fineAmount);
             borrowedBooksList.add(borrowedBooks);
-
-
         }
         return borrowedBooksList;
     }
+    @PostMapping("/addMultiple")
+    public String addMultipleBooks(@RequestBody List<Book> books) {
+        bookService.addMultipleBooks(books);
+        return "books added successfully";
+    }
+    @PutMapping("/renew/{id}")
+    public String renewBook(@PathVariable("id") long id) {
+        Book book = bookService.getBookById(id);
+        if (book != null && !book.getAvailable()) {
+            Date currentDate = new Date();
+            if (currentDate.before(book.getReturnDate())) {
+                // Calculates the  new return date
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(currentDate);
+                cal.add(Calendar.DAY_OF_MONTH, 14);
+                book.setReturnDate(cal.getTime());
+                bookService.updateBook(book);
+                return "Book renewed successfully";
+            } else {
+                return "Book cannot be renewed as the return date has passed";
+            }
+        } else {
+            return "Book not found or not borrowed";
+        }
+    }
 
+//    @PutMapping("/reserveBook/{id}")
+//    public String reserveBorrowedBook(@PathVariable("id") long id, @RequestParam("reservedBy")String reservedBy) {
+//        bookService.returnAndreserveBook(id,reservedBy);
+//        return "Book reserved successfully";
+//    }
 }

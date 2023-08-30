@@ -8,7 +8,7 @@ import java.util.List;
 @Entity
 @Table(name="student_table")
 public class Student {
-    @Id()
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String name;
@@ -27,6 +27,9 @@ public class Student {
     @OneToMany(mappedBy = "borrowBy")
     private List<Book> borrowedBooks = new ArrayList<>();
 
+    private String password;
+    private double fineAmount;
+
     public String getPassword() {
         return password;
     }
@@ -34,9 +37,6 @@ public class Student {
     public void setPassword(String password) {
         this.password = password;
     }
-
-    private String password;
-    private double fineAmount;
 
     public long getId() {
         return id;

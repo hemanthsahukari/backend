@@ -46,8 +46,6 @@ public class StudentServiceImpl implements StudentService{
     public double calculateFine(Date borrowDate, Date returnDate) {
         long diffInMillies = returnDate.getTime() - borrowDate.getTime();
         long diffInDays = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-
-        // Assume a fine of $0.50 per day overdue
         double finePerDay = 0.50;
         double fineAmount = finePerDay * diffInDays;
 

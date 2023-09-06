@@ -43,12 +43,12 @@ public class StudentServiceImpl implements StudentService{
     }
 
     @Override
-    public double calculateFine(Date borrowDate, Date returnDate) {
-        long diffInMillies = returnDate.getTime() - borrowDate.getTime();
+    public double calculateFine(Date currentDate, Date returnDate) {
+        long diffInMillies = currentDate.getTime() - returnDate.getTime();
         long diffInDays = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
         double finePerDay = 0.50;
         double fineAmount = finePerDay * diffInDays;
-
+        System.out.println("diffInDays:" + diffInDays);
         return fineAmount;
     }
 

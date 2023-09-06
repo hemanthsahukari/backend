@@ -76,6 +76,9 @@ public class BookController {
         if (book != null && book.getAvailable()) {
             book.setAvailable(false);
             Student student= studentService.getCurrentLoggedInStudent(name);
+            if(student.getFineAmount() > 0) {
+                return "Pay the fine amount to borrow another book";
+            }
             book.setBorrowBy(student);
             book.setBorrowDate(new Date());
             Calendar cal = Calendar.getInstance();
@@ -97,8 +100,11 @@ public class BookController {
         if (book != null && !book.getAvailable()) {
             book.setAvailable(true);
             Date currentDate = new Date();
+            System.out.println("currentDate : " + currentDate);
+            book.setSubmitDate(currentDate);
             if (currentDate.after(book.getReturnDate())) {
-                 double fineAmount = studentService.calculateFine(book.getBorrowDate(), book.getReturnDate());
+                 double fineAmount = studentService.calculateFine(currentDate, book.getReturnDate());
+                System.out.println("fineAmount:" + fineAmount);
                 Student student = book.getBorrowBy();
                 student.setFineAmount(student.getFineAmount() + fineAmount);
                 studentService.updateStudent(student);
@@ -121,11 +127,16 @@ public class BookController {
             borrowedBooks.setTitle(book.getTitle());
             borrowedBooks.setAuthor(book.getAuthor());
             borrowedBooks.setAvailable(book.getAvailable());
-            //null pointer exception need to fix: when a user borrrow it should define the name of user but showing undefined
+            //null pointer exception need to fix: when a user borrrow it should
+            // define the name of user but showing undefined
             borrowedBooks.setBorrowBy(book.getBorrowBy().getName());
             borrowedBooks.setBorrowDate(book.getBorrowDate());
             borrowedBooks.setReturnDate(book.getReturnDate());
-            double fineAmount = studentService.calculateFine(book.getBorrowDate(), book.getReturnDate());
+            double fineAmount = 0.0;
+            if(book.getSubmitDate()!=null) {
+                fineAmount = studentService.calculateFine(book.getSubmitDate(), book.getReturnDate());
+            }
+            System.out.println("fineAmount:" + fineAmount);
             borrowedBooks.setFineAmount(fineAmount);
             borrowedBooksList.add(borrowedBooks);
         }
@@ -157,9 +168,8 @@ public class BookController {
         }
     }
 
-//    @PutMapping("/reserveBook/{id}")
-//    public String reserveBorrowedBook(@PathVariable("id") long id, @RequestParam("reservedBy")String reservedBy) {
-//        bookService.returnAndreserveBook(id,reservedBy);
-//        return "Book reserved successfully";
+//    @PutMapping("/reserve/{id}")
+//    public String reserveBook(@PathVariable("id")long id) {
+//
 //    }
 }

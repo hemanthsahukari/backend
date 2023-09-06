@@ -21,6 +21,5 @@ public interface BookService {
 
     void renewBook(long id);
 
-
 //    void reserveBook(long id);
 }

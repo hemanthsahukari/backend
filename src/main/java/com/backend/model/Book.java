@@ -17,11 +17,6 @@ public class Book {
     private Boolean available;
 
 
-//    @Column(name = "reserved_by")
-//    private  String reservedBy;
-
-
-
     @ManyToOne
     @JoinColumn(name = "student_id")
     @JsonIgnore
@@ -30,6 +25,9 @@ public class Book {
     private Date borrowDate;
     @Temporal(TemporalType.TIMESTAMP)
     private Date returnDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date submitDate;
 
 
 
@@ -89,11 +87,12 @@ public class Book {
     public void setAvailable(Boolean available) {
         this.available = available;
     }
-//    public String getReservedBy() {
-//        return reservedBy;
-//    }
-//
-//    public void setReservedBy(String reservedBy) {
-//        this.reservedBy = reservedBy;
-//    }
+
+    public Date getSubmitDate() {
+        return submitDate;
+    }
+
+    public void setSubmitDate(Date submitDate) {
+        this.submitDate = submitDate;
+    }
 }

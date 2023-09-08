@@ -7,9 +7,12 @@ import com.backend.model.Student;
 import com.backend.service.BookService;
 import com.backend.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.http.HttpResponse;
 import java.util.*;
 
 @RestController
@@ -71,13 +74,14 @@ public class BookController {
     }
 
     @PutMapping("/borrow/{id}/{name}")
-    public String borrowBook(@PathVariable("id") long id,@PathVariable("name") String name) {
+    @ResponseBody
+    public ResponseEntity<String> borrowBook(@PathVariable("id") long id, @PathVariable("name") String name) {
         Book book = bookService.getBookById(id);
         if (book != null && book.getAvailable()) {
             book.setAvailable(false);
             Student student= studentService.getCurrentLoggedInStudent(name);
             if(student.getFineAmount() > 0) {
-                return "Pay the fine amount to borrow another book";
+                return new ResponseEntity<>("Pay the fine amount to borrow another book", new HttpHeaders(), HttpStatus.ACCEPTED);
             }
             book.setBorrowBy(student);
             book.setBorrowDate(new Date());
@@ -86,16 +90,16 @@ public class BookController {
             cal.add(Calendar.DAY_OF_MONTH, 7);
             book.setReturnDate(cal.getTime());
             bookService.updateBook(book);
-            return "Book borrowed successfully";
+            return new ResponseEntity<>("Book borrowed successfully", new HttpHeaders(), HttpStatus.OK);
         } else if (book != null && !book.getAvailable()) {
-            return "Book is not available (already borrowed)";
+            return new ResponseEntity<>("Book is not available (already borrowed)", new HttpHeaders(), HttpStatus.ACCEPTED);
         } else {
-            return "Book not found";
+            return new ResponseEntity<>("Book not found", new HttpHeaders(), HttpStatus.ACCEPTED);
         }
     }
 
     @PutMapping("/return/{id}")
-    public String returnBook(@PathVariable("id") long id) {
+    public ResponseEntity<String> returnBook(@PathVariable("id") long id) {
         Book book = bookService.getBookById(id);
         if (book != null && !book.getAvailable()) {
             book.setAvailable(true);
@@ -110,11 +114,11 @@ public class BookController {
                 studentService.updateStudent(student);
             }
             bookService.updateBook(book);
-            return "Book returned successfully";
+            return new ResponseEntity<>("Book returned successfully",new HttpHeaders(),HttpStatus.OK) ;
         } else if (book != null && book.getAvailable()) {
-            return "Book is already available (not borrowed)";
+            return new ResponseEntity<>("Book is already available (not borrowed)",new HttpHeaders(),HttpStatus.ACCEPTED);
         } else {
-            return "Book not found";
+            return new ResponseEntity<>("Book not found",new HttpHeaders(),HttpStatus.ACCEPTED);
         }
     }
     @GetMapping("/borrowed")
@@ -168,8 +172,4 @@ public class BookController {
         }
     }
 
-//    @PutMapping("/reserve/{id}")
-//    public String reserveBook(@PathVariable("id")long id) {
-//
-//    }
 }

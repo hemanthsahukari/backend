@@ -1,8 +1,6 @@
 package com.backend.controller;
 
 import com.backend.DTO.UserDetails;
-import com.backend.model.Admin;
-import com.backend.model.Book;
 import com.backend.model.Student;
 import com.backend.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +40,7 @@ public class StudentController {
     public Student getStudentById(@PathVariable("id") long id){
         return studentService.getStudentById(id);
     }
-
     //getStudents
-
     @GetMapping("/")
     public List<Student> getStudents(){
         return studentService.getStudents();

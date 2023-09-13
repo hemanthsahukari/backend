@@ -41,7 +41,7 @@ public class AdminController {
             return "Invalid credentials";
         }
     }
-    //books..
+    //books.
     @PostMapping("/books/add")
     public String addBook(@RequestBody Book book) {
         bookService.addBook(book);

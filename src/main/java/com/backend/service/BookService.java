@@ -17,4 +17,9 @@ public interface BookService {
     List<Book> getBookByAuthor(String author);
     List<Book> getBorrowedBooks();
 
+    void addMultipleBooks(List<Book> books);
+
+    void renewBook(long id);
+
+//    void reserveBook(long id);
 }

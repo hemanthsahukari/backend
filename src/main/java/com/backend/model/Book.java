@@ -26,6 +26,11 @@ public class Book {
     @Temporal(TemporalType.TIMESTAMP)
     private Date returnDate;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date submitDate;
+
+
+
     public Student getBorrowBy() {
         return borrowBy;
     }
@@ -81,5 +86,13 @@ public class Book {
 
     public void setAvailable(Boolean available) {
         this.available = available;
+    }
+
+    public Date getSubmitDate() {
+        return submitDate;
+    }
+
+    public void setSubmitDate(Date submitDate) {
+        this.submitDate = submitDate;
     }
 }

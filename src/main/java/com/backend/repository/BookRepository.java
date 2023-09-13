@@ -1,7 +1,7 @@
 package com.backend.repository;
 
 import com.backend.model.Book;
-import org.springframework.data.jpa.repository.Query;
+import com.backend.model.Student;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -18,5 +18,4 @@ public interface BookRepository extends CrudRepository<Book, Long> {
 
     List<Book> findByAuthor(String author);
 
-//    List<Book> findByAuthor(String author);
 }

@@ -1,6 +1,7 @@
 package com.backend.controller;
 
 import com.backend.DTO.UserDetails;
+import com.backend.model.History;
 import com.backend.model.Student;
 import com.backend.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +56,13 @@ public class StudentController {
     public String deleteStudent(@PathVariable("id") long id){
         studentService.deleteStudent(id);
         return "Student Deleted";
+    }
+
+    @GetMapping("/history/{name}")
+    public List<History> getHistory(@PathVariable("name") String name) {
+        Student student = studentService.getCurrentLoggedInStudent(name);
+         return studentService.getHistory(student);
+
     }
 
 }

@@ -1,6 +1,7 @@
 package com.backend.service;
 
 import com.backend.model.Book;
+import com.backend.model.History;
 import com.backend.model.Student;
 import org.springframework.stereotype.Service;
 
@@ -18,4 +19,6 @@ public interface StudentService {
 
     public boolean userExists(String username, String password);
     public Student getCurrentLoggedInStudent(String name);
+
+    List<History> getHistory(Student student);
 }

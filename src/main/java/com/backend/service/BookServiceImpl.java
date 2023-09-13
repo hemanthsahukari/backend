@@ -20,7 +20,6 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Book addBook(Book book) {
-        book.setAvailable(true);
         return bookRepository.save(book);
     }
 
@@ -57,8 +56,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public void borrowBook(long id) {
         Book book = bookRepository.findById(id).orElse(null);
-        if (book != null && book.getAvailable()) {
-            book.setAvailable(false);
+        if (book != null && book.getCopiesAvailable()>0) {
             bookRepository.save(book);
         }
     }
@@ -66,14 +64,13 @@ public class BookServiceImpl implements BookService {
     @Override
     public void returnBook(long id) {
         Book book = bookRepository.findById(id).orElse(null);
-        if (book != null && !book.getAvailable()) {
-            book.setAvailable(true);
+        if (book != null && book.getCopiesAvailable() <= 0) {
             bookRepository.save(book);
         }
     }
     @Override
     public List<Book> getBorrowedBooks(){
-        return bookRepository.findByAvailableFalse();
+        return bookRepository.findByCopiesAvailable(0);
     }
     @Override
     public void addMultipleBooks(List<Book> books) {
@@ -84,7 +81,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public void renewBook(long id) {
         Book book = bookRepository.findById(id).orElse(null);
-        if (book != null && !book.getAvailable()) {
+        if (book != null && book.getCopiesAvailable() <= 0) {
             Date currentDate = new Date();
             if (currentDate.before(book.getReturnDate())) {
                 Calendar cal = Calendar.getInstance();

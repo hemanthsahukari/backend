@@ -14,7 +14,6 @@ public class Book {
 
     private String title;
     private String author;
-    private Boolean available;
 
 
     @ManyToOne
@@ -29,7 +28,33 @@ public class Book {
     @Temporal(TemporalType.TIMESTAMP)
     private Date submitDate;
 
+    @Column(name="copies_available")
+    private long copiesAvailable;
 
+    @Column(name="firstCopy")
+    public long getFirstCopy() {
+        return firstCopy;
+    }
+
+    public void setFirstCopy(long firstCopy) {
+        this.firstCopy = firstCopy;
+    }
+
+    private long firstCopy;
+    public Book(){
+
+    }
+    public Book(long copiesAvailable) {
+        this.copiesAvailable = copiesAvailable;
+    }
+
+    public long getCopiesAvailable() {
+        return copiesAvailable;
+    }
+
+    public void setCopiesAvailable(long copiesAvailable) {
+        this.copiesAvailable = copiesAvailable;
+    }
 
     public Student getBorrowBy() {
         return borrowBy;
@@ -80,13 +105,6 @@ public class Book {
         this.author = author;
     }
 
-    public Boolean getAvailable() {
-        return available;
-    }
-
-    public void setAvailable(Boolean available) {
-        this.available = available;
-    }
 
     public Date getSubmitDate() {
         return submitDate;

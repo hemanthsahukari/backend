@@ -15,20 +15,14 @@ public class Student {
     private String email;
     private String pNo;
 
-
-    public List<Book> getBorrowedBooks() {
-        return borrowedBooks;
-    }
-
-    public void setBorrowedBooks(List<Book> borrowedBooks) {
-        this.borrowedBooks = borrowedBooks;
-    }
+    private long borrowCount;
 
     @OneToMany(mappedBy = "borrowBy")
     private List<Book> borrowedBooks = new ArrayList<>();
 
     private String password;
     private double fineAmount;
+
 
     public String getPassword() {
         return password;
@@ -77,4 +71,22 @@ public class Student {
     public void setFineAmount(double fineAmount) {
         this.fineAmount = fineAmount;
     }
+
+    public List<Book> getBorrowedBooks() {
+        return borrowedBooks;
+    }
+
+    public void setBorrowedBooks(List<Book> borrowedBooks) {
+        this.borrowedBooks = borrowedBooks;
+    }
+
+
+    public long getBorrowCount() {
+        return borrowCount;
+    }
+
+    public void setBorrowCount(long borrowCount) {
+        this.borrowCount = borrowCount;
+    }
+
 }

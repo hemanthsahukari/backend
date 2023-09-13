@@ -14,7 +14,7 @@ public interface BookRepository extends CrudRepository<Book, Long> {
 
     List<Book> findByTitle(String title);
 
-    List<Book> findByAvailableFalse();
+    List<Book> findByCopiesAvailable(long copies);
 
     List<Book> findByAuthor(String author);
 

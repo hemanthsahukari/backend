@@ -8,9 +8,7 @@ import com.backend.service.BookService;
 import com.backend.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.PostConstruct;
-import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
@@ -44,12 +42,14 @@ public class AdminController {
     //books.
     @PostMapping("/books/add")
     public String addBook(@RequestBody Book book) {
+//        book.setCopiesAvailable(3);
         bookService.addBook(book);
         return "Book added successfully";
     }
 
     @PutMapping("/books/update")
     public String updateBook(@RequestBody Book book) {
+        book.setFirstCopy(book.getCopiesAvailable());
         bookService.updateBook(book);
         return "Book updated successfully";
     }

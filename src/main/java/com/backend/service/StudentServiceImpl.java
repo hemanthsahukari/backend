@@ -2,7 +2,9 @@ package com.backend.service;
 
 import com.backend.model.Admin;
 import com.backend.model.Book;
+import com.backend.model.History;
 import com.backend.model.Student;
+import com.backend.repository.HistoryRepository;
 import com.backend.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
@@ -17,6 +19,9 @@ public class StudentServiceImpl implements StudentService{
 
     @Autowired
     private StudentRepository studentRepository;
+
+    @Autowired
+    private HistoryRepository historyRepository;
     @Override
     public Student addStudent(Student student){
         return studentRepository.save(student);
@@ -63,4 +68,8 @@ public class StudentServiceImpl implements StudentService{
         return studentRepository.findByName(name);
     }
 
+    @Override
+    public List<History> getHistory(Student student){
+        return historyRepository.findByStudent(student);
+    }
 }

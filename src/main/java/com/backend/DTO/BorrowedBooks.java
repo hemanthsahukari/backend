@@ -8,7 +8,6 @@ public class BorrowedBooks {
     private long id;
     private String title;
     private String author;
-    private Boolean available;
     private String borrowBy;
     private Date borrowDate;
     private Date returnDate;
@@ -47,13 +46,6 @@ public class BorrowedBooks {
         this.author = author;
     }
 
-    public Boolean getAvailable() {
-        return available;
-    }
-
-    public void setAvailable(Boolean available) {
-        this.available = available;
-    }
 
     public String getBorrowBy() {
         return borrowBy;

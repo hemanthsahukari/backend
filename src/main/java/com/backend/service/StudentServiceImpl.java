@@ -72,4 +72,9 @@ public class StudentServiceImpl implements StudentService{
     public List<History> getHistory(Student student){
         return historyRepository.findByStudent(student);
     }
+
+    @Override
+    public Student getStudentByName(String name){
+        return studentRepository.findByName(name);
+    }
 }

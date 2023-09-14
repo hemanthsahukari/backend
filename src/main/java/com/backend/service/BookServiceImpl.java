@@ -3,6 +3,7 @@ package com.backend.service;
 import com.backend.model.Book;
 import com.backend.model.Student;
 import com.backend.repository.BookRepository;
+import com.backend.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,8 @@ public class BookServiceImpl implements BookService {
     private BookRepository bookRepository;
     @Autowired
     private StudentService studentService;
+    @Autowired
+    private StudentRepository studentRepository;
 
     @Override
     public Book addBook(Book book) {
@@ -70,7 +73,8 @@ public class BookServiceImpl implements BookService {
     }
     @Override
     public List<Book> getBorrowedBooks(){
-        return bookRepository.findByCopiesAvailable(0);
+        return bookRepository.findByBorrowByIsNotNull();
+
     }
     @Override
     public void addMultipleBooks(List<Book> books) {
@@ -91,6 +95,17 @@ public class BookServiceImpl implements BookService {
                 bookRepository.save(book);
             }
         }
+    }
+
+    @Override
+    public Book findByTitleAndAuthor(String title, String author){
+        return bookRepository.findByTitleAndAuthor(title, author);
+    }
+
+    @Override
+    public List<Book> getStudentBorrowedBooks(String name){
+        Student student = studentRepository.findByName(name);
+        return bookRepository.findByBorrowBy(student.getId());
     }
 
 }

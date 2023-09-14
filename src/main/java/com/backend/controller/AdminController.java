@@ -42,8 +42,19 @@ public class AdminController {
     //books.
     @PostMapping("/books/add")
     public String addBook(@RequestBody Book book) {
-//        book.setCopiesAvailable(3);
-        bookService.addBook(book);
+        System.out.println("copies : " + book.getCopiesAvailable());
+        book.setFirstCopy(book.getCopiesAvailable());
+        System.out.println("fist copy : " + book.getFirstCopy());
+        Book existingBook = bookService.findByTitleAndAuthor(book.getTitle(), book.getAuthor());
+        if(existingBook != null) {
+            System.out.println("inside existing book");
+            existingBook.setCopiesAvailable(book.getCopiesAvailable() + existingBook.getCopiesAvailable());
+            existingBook.setFirstCopy(book.getFirstCopy() + existingBook.getFirstCopy());
+            bookService.updateBook(existingBook);
+        }
+        else {
+            bookService.addBook(book);
+        }
         return "Book added successfully";
     }
 

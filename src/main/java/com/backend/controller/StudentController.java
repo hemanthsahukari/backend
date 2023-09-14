@@ -1,8 +1,12 @@
 package com.backend.controller;
 
 import com.backend.DTO.UserDetails;
+
 import com.backend.model.History;
+import com.backend.model.Momo;
 import com.backend.model.Student;
+
+import com.backend.service.MomoService;
 import com.backend.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +21,9 @@ import java.util.List;
 public class StudentController {
     @Autowired
     private StudentService studentService;
+
+    @Autowired
+    private MomoService momoService;
     @GetMapping("/home")
     public String home(){
         return "Welcome to Library Management System";
@@ -25,11 +32,21 @@ public class StudentController {
     @PostMapping("/login")
     public ResponseEntity<String> userLogin(@RequestBody UserDetails userDetails) {
         if (studentService.userExists(userDetails.getUsername(), userDetails.getPassword())) {
+            Momo momo = new Momo(userDetails.getUsername());
+            momoService.saveMomo(momo);
             return new ResponseEntity<>("User logged in successfully", new HttpHeaders(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>("Invalid Credentials", new HttpHeaders(), HttpStatus.UNAUTHORIZED);
         }
     }
+
+    @GetMapping("/getCurrentMomo")
+    public String getCurrentMomo() {
+        return momoService.getCurrentMomo();
+
+    }
+
+
     //add student
     @PostMapping("/add")
     public String addStudent(@RequestBody Student student){
@@ -62,7 +79,6 @@ public class StudentController {
     public List<History> getHistory(@PathVariable("name") String name) {
         Student student = studentService.getCurrentLoggedInStudent(name);
          return studentService.getHistory(student);
-
     }
 
 }

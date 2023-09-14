@@ -21,5 +21,9 @@ public interface BookService {
 
     void renewBook(long id);
 
+    Book findByTitleAndAuthor(String title, String author);
+
+    List<Book> getStudentBorrowedBooks(String name);
+
 //    void reserveBook(long id);
 }

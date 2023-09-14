@@ -3,17 +3,18 @@ package com.backend.controller;
 import com.backend.DTO.BorrowedBooks;
 import com.backend.model.Book;
 
+import com.backend.model.BookStudentMap;
 import com.backend.model.History;
 import com.backend.model.Student;
 import com.backend.service.BookService;
+import com.backend.service.BookStudentMapService;
 import com.backend.service.HistoryService;
 import com.backend.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.net.http.HttpResponse;
+
 import java.util.*;
 
 @RestController
@@ -29,12 +30,10 @@ public class BookController {
     @Autowired
     private HistoryService historyService;
 
-    @PostMapping("/add")
-    public String addBook(@RequestBody Book book) {
-        book.setFirstCopy(book.getCopiesAvailable());
-        bookService.addBook(book);
-        return "Book added successfully";
-    }
+
+    @Autowired
+    private BookStudentMapService bookStudentMapService;
+
     @GetMapping("/{id}")
     public Book getBookById(@PathVariable("id") long id) {
         return bookService.getBookById(id);
@@ -80,17 +79,22 @@ public class BookController {
 
     @PutMapping("/borrow/{id}/{name}")
     @ResponseBody
-    public ResponseEntity<String> borrowBook(@PathVariable("id") long id, @PathVariable("name") String name) {
+    public String borrowBook(@PathVariable("id") long id, @PathVariable("name") String name) {
         Book book = bookService.getBookById(id);
         Student student= studentService.getCurrentLoggedInStudent(name);
         if(student.getBorrowCount()<=2) {
             if (book != null && book.getCopiesAvailable() > 0) {
 
                 if (student.getFineAmount() > 0) {
-                    return new ResponseEntity<>("Pay the fine amount to borrow another book", new HttpHeaders(), HttpStatus.ACCEPTED);
+                    return "Pay the fine amount to borrow another book";
                 }
+//                book.setBorrowBy(student);//optional
 
-                book.setBorrowBy(student);
+                BookStudentMap bookStudentMap = new BookStudentMap(book.getId(), student.getId());
+                bookStudentMapService.saveBookStudentMap(bookStudentMap);
+
+
+
                 book.setBorrowDate(new Date());
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(book.getBorrowDate());
@@ -104,26 +108,30 @@ public class BookController {
                 History history = new History(new Date(),book.getTitle() + " Book borrowed successfully", student);
                 historyService.saveHistory(history);
 
-                return new ResponseEntity<>("Book borrowed successfully", new HttpHeaders(), HttpStatus.OK);
+                return "Book borrowed successfully";
             } else if (book != null && book.getCopiesAvailable() == 0) {
-                return new ResponseEntity<>("no copies of book is available (already borrowed)", new HttpHeaders(), HttpStatus.ACCEPTED);
+                return "no copies of book is available (already borrowed)";
             } else {
-                return new ResponseEntity<>("Book not found", new HttpHeaders(), HttpStatus.ACCEPTED);
+
+                return "Book not found";
             }
         }
         else {
-            return new ResponseEntity<>("Borrow Count Exceeded", new HttpHeaders(), HttpStatus.ACCEPTED);
+            return "Borrow Count Exceeded";
         }
     }
 
 
     @PutMapping("/return/{id}/{name}")
-    public ResponseEntity<String> returnBook(@PathVariable("id") long id, @PathVariable("name")String name) {
+    public String returnBook(@PathVariable("id") long id, @PathVariable("name")String name) {
         Book book = bookService.getBookById(id);
 
         Student currentLoggedInStudent = studentService.getCurrentLoggedInStudent(name);
+
+        BookStudentMap bookStudentMap = bookStudentMapService.getBookStudentMapByBookAndStudent(id,currentLoggedInStudent.getId());
         if (book != null) {
-            if (book.getBorrowBy() != null && book.getBorrowBy().getId() == currentLoggedInStudent.getId()){
+            if (bookStudentMap != null) {
+                //condition for firstCopy
                 book.setCopiesAvailable(book.getCopiesAvailable() + 1);
                 Date currentDate = new Date();
                 System.out.println("currentDate : " + currentDate);
@@ -131,31 +139,37 @@ public class BookController {
                 if (currentDate.after(book.getReturnDate())) {
                     double fineAmount = studentService.calculateFine(currentDate, book.getReturnDate());
                     System.out.println("fineAmount:" + fineAmount);
-                    Student student = book.getBorrowBy();
+                   //Student student = book.getBorrowBy();
+                    Student student = studentService.getStudentById(bookStudentMap.getStudentId());
                     student.setFineAmount(student.getFineAmount() + fineAmount);
                     studentService.updateStudent(student);
                 }
+                bookStudentMapService.deleteBookStudentMap(bookStudentMap);
                 bookService.updateBook(book);
-                return new ResponseEntity<>("Book returned successfully", new HttpHeaders(), HttpStatus.OK);
+                return "Book returned successfully";
             }
             else {
-                return new ResponseEntity<>("you are not the borrower of the book", new HttpHeaders(),HttpStatus.OK) ;
+                return "you are not the borrower of the book";
             }
         }
          else {
-            return new ResponseEntity<>("Book not found",new HttpHeaders(),HttpStatus.ACCEPTED);
+            return "Book not found";
         }
     }
     @GetMapping("/borrowed")
     public  List<BorrowedBooks> getBorrowedBooks(){
-        List<Book> bookList = bookService.getBorrowedBooks();
+        List<BookStudentMap> bookStudentMapList = bookStudentMapService.getBookStudentMap();
         List<BorrowedBooks> borrowedBooksList = new ArrayList<>();
-        for(Book book : bookList) {
+        for(BookStudentMap bookStudentMap : bookStudentMapList) {
+            Student student = studentService.getStudentById(bookStudentMap.getStudentId());
+            Book book = bookService.getBookById(bookStudentMap.getBookId());
+
             BorrowedBooks borrowedBooks = new BorrowedBooks();
+
             borrowedBooks.setId(book.getId());
             borrowedBooks.setTitle(book.getTitle());
             borrowedBooks.setAuthor(book.getAuthor());
-            borrowedBooks.setBorrowBy(book.getBorrowBy().getName());
+            borrowedBooks.setBorrowBy(student.getName());
             borrowedBooks.setBorrowDate(book.getBorrowDate());
             borrowedBooks.setReturnDate(book.getReturnDate());
             double fineAmount = 0.0;
@@ -168,6 +182,36 @@ public class BookController {
         }
         return borrowedBooksList;
     }
+
+
+    @GetMapping("/borrowed/{name}")
+    public  List<BorrowedBooks> getBorrowedBooks(@PathVariable("name") String name){
+        Student student = studentService.getStudentByName(name);
+        List<BookStudentMap> bookStudentMapList = bookStudentMapService.getBookStudentMapByName(student.getId());
+        List<BorrowedBooks> borrowedBooksList = new ArrayList<>();
+        for(BookStudentMap bookStudentMap : bookStudentMapList) {
+            Book book = bookService.getBookById(bookStudentMap.getBookId());
+
+            BorrowedBooks borrowedBooks = new BorrowedBooks();
+
+            borrowedBooks.setId(book.getId());
+            borrowedBooks.setTitle(book.getTitle());
+            borrowedBooks.setAuthor(book.getAuthor());
+            borrowedBooks.setBorrowBy(student.getName());
+            borrowedBooks.setBorrowDate(book.getBorrowDate());
+            borrowedBooks.setReturnDate(book.getReturnDate());
+            double fineAmount = 0.0;
+            if(book.getSubmitDate()!=null) {
+                fineAmount = studentService.calculateFine(book.getSubmitDate(), book.getReturnDate());
+            }
+            System.out.println("fineAmount:" + fineAmount);
+            borrowedBooks.setFineAmount(fineAmount);
+            borrowedBooksList.add(borrowedBooks);
+        }
+        return borrowedBooksList;
+    }
+
+
     @PostMapping("/addMultiple")
     public String addMultipleBooks(@RequestBody List<Book> books) {
         bookService.addMultipleBooks(books);

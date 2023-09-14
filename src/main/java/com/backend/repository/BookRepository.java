@@ -1,13 +1,11 @@
 package com.backend.repository;
 
 import com.backend.model.Book;
-import com.backend.model.Student;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface BookRepository extends CrudRepository<Book, Long> {
@@ -18,4 +16,11 @@ public interface BookRepository extends CrudRepository<Book, Long> {
 
     List<Book> findByAuthor(String author);
 
+    Book findByTitleAndAuthor(String Title, String Author);
+
+    List<Book> findByBorrowByIsNotNull();
+
+
+    @Query(value = "select * from book_table b where student_id = ?1",nativeQuery = true)
+    List<Book> findByBorrowBy(long studentId);
 }

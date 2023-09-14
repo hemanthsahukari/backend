@@ -21,4 +21,6 @@ public interface StudentService {
     public Student getCurrentLoggedInStudent(String name);
 
     List<History> getHistory(Student student);
+
+    Student getStudentByName(String name);
 }

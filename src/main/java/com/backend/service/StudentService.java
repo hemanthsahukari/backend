@@ -23,4 +23,6 @@ public interface StudentService {
     List<History> getHistory(Student student);
 
     Student getStudentByName(String name);
+
+//    Student getStudentByName(Student name);
 }

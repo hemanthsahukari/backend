@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -49,9 +50,13 @@ public class StudentController {
 
     //add student
     @PostMapping("/add")
-    public String addStudent(@RequestBody Student student){
-        studentService.addStudent(student);
-        return "student added successfully";
+    public String addStudent(@RequestBody Student student) {
+        Student student1 = studentService.getStudentByName(student.getName());
+        if(student1 == null) {
+            studentService.addStudent(student);
+            return "Student added successfully";
+        }
+        return "Student with Same name already exist";
     }
     //getStudentById
     @GetMapping("/{id}")
@@ -81,4 +86,10 @@ public class StudentController {
          return studentService.getHistory(student);
     }
 
+    @GetMapping("/StudentFine/{name}")
+    public double StudentFine(@PathVariable("name")String name) {
+        Student student = studentService.getStudentByName(name);
+        double fineAmount= student.getFineAmount();
+        return fineAmount;
+    }
 }

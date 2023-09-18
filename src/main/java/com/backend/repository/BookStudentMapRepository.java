@@ -14,6 +14,6 @@ public interface BookStudentMapRepository extends CrudRepository<BookStudentMap,
     @Query(value = "select * from book_student_map where student_id = ?1",nativeQuery = true)
     List<BookStudentMap> findByStudentId(long studentId);
 
-    @Query(value = "select * from book_student_map where book_id = ?1 and student_id = ?2",nativeQuery = true)
+    @Query(value = "select * from book_student_map where book_id = ?1 and student_id = ?2 ORDER BY id DESC LIMIT 1",nativeQuery = true)
     BookStudentMap findByBookIdAndStudentId(long bookId, long studentId);
 }

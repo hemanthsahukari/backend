@@ -68,6 +68,7 @@ public class BookController {
 
     @PutMapping
     public Book updateBook(@RequestBody Book book) {
+        book.setFirstCopy(book.getCopiesAvailable());
         return bookService.updateBook(book);
     }
 
@@ -77,6 +78,53 @@ public class BookController {
         return "Book Deleted";
     }
 
+//    @GetMapping("/disableStatus/{id}/{name}")
+//    public HashMap<String,Boolean> disableStatus(@PathVariable("id") long id, @PathVariable("name") String name) {
+//        HashMap<String,Boolean> disableStatusMap = new HashMap<>();
+//        Boolean isBorrowDisabled = false, isReturnDisabled = true;
+//        Book book = bookService.getBookById(id);
+//        Student currentLoggedInStudent = studentService.getCurrentLoggedInStudent(name);
+//
+//        List<BookStudentMap> bookStudentMapList = bookStudentMapService.getBookStudentMap();
+//        long borrowedCopies = bookStudentMapList.stream()
+//                .filter(map -> map.getBookId() == book.getId() && map.getStudentId() == currentLoggedInStudent.getId())
+//                .count();
+//        System.out.println("bookStudentMapList: ");
+//        for (BookStudentMap bookStudentMap : bookStudentMapList) {
+//            System.out.println(bookStudentMap);
+//        }
+//        System.out.println("borrowedCopies:" + borrowedCopies);
+//        if (borrowedCopies >= book.getFirstCopy()) {
+//            isBorrowDisabled = true;
+//        } else {
+//            isBorrowDisabled = false;
+//        }
+//// Check if there are no available copies of the book
+//        long availableCopies = bookStudentMapList.stream()
+//                .filter(map -> map.getBookId() == book.getId())
+//                .count();
+//        System.out.println("availableCopies:" + availableCopies);
+//        if (availableCopies >= book.getFirstCopy()) {
+//            isBorrowDisabled = true;
+//        } else {
+//            isBorrowDisabled = false;
+//        }
+//
+//// Check if the student has borrowed the boo
+//        Boolean isBookBorrowed = bookStudentMapList.stream()
+//                .anyMatch(map -> map.getBookId() == book.getId() && map.getStudentId() == currentLoggedInStudent.getId());
+//        if (!isBookBorrowed) {
+//            isReturnDisabled = true;
+//        } else {
+//            isReturnDisabled = false;
+//        }
+//        System.out.println("isBookBorrowed:" + isBookBorrowed);
+//
+//        disableStatusMap.put("isBorrowDisabled", isBorrowDisabled);
+//        disableStatusMap.put("isReturnDisabled", isReturnDisabled);
+//
+//        return disableStatusMap;
+//    }
     @PutMapping("/borrow/{id}/{name}")
     @ResponseBody
     public String borrowBook(@PathVariable("id") long id, @PathVariable("name") String name) {
@@ -89,12 +137,8 @@ public class BookController {
                     return "Pay the fine amount to borrow another book";
                 }
 //                book.setBorrowBy(student);//optional
-
                 BookStudentMap bookStudentMap = new BookStudentMap(book.getId(), student.getId());
                 bookStudentMapService.saveBookStudentMap(bookStudentMap);
-
-
-
                 book.setBorrowDate(new Date());
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(book.getBorrowDate());
@@ -104,6 +148,7 @@ public class BookController {
 
                 bookService.updateBook(book);
                 student.setBorrowCount(student.getBorrowCount() + 1);
+//                studentService.updateStudent(student);
 
                 History history = new History(new Date(),book.getTitle() + " Book borrowed successfully", student);
                 historyService.saveHistory(history);
@@ -121,35 +166,47 @@ public class BookController {
         }
     }
 
-
     @PutMapping("/return/{id}/{name}")
     public String returnBook(@PathVariable("id") long id, @PathVariable("name")String name) {
         Book book = bookService.getBookById(id);
 
-        Student currentLoggedInStudent = studentService.getCurrentLoggedInStudent(name);
+        Student student = studentService.getCurrentLoggedInStudent(name);
 
-        BookStudentMap bookStudentMap = bookStudentMapService.getBookStudentMapByBookAndStudent(id,currentLoggedInStudent.getId());
+        BookStudentMap bookStudentMap = bookStudentMapService.getBookStudentMapByBookAndStudent(id, student.getId());
         if (book != null) {
             if (bookStudentMap != null) {
                 //condition for firstCopy
                 book.setCopiesAvailable(book.getCopiesAvailable() + 1);
+                student.setBorrowCount(student.getBorrowCount() -1);
                 Date currentDate = new Date();
                 System.out.println("currentDate : " + currentDate);
                 book.setSubmitDate(currentDate);
+
+
                 if (currentDate.after(book.getReturnDate())) {
                     double fineAmount = studentService.calculateFine(currentDate, book.getReturnDate());
                     System.out.println("fineAmount:" + fineAmount);
-                   //Student student = book.getBorrowBy();
-                    Student student = studentService.getStudentById(bookStudentMap.getStudentId());
+
+
                     student.setFineAmount(student.getFineAmount() + fineAmount);
                     studentService.updateStudent(student);
+
+
                 }
+
+                History history = new History(new Date(),book.getTitle() + " Book returned successfully", student);
+                historyService.saveHistory(history);
+
                 bookStudentMapService.deleteBookStudentMap(bookStudentMap);
                 bookService.updateBook(book);
                 return "Book returned successfully";
             }
             else {
-                return "you are not the borrower of the book";
+                if(book.getCopiesAvailable() == book.getFirstCopy()) {
+                    return "return not possible, you didn't borrow any book yet..!";
+                } else {
+                    return "you are not the borrower of the book";
+                }
             }
         }
          else {
@@ -173,10 +230,10 @@ public class BookController {
             borrowedBooks.setBorrowDate(book.getBorrowDate());
             borrowedBooks.setReturnDate(book.getReturnDate());
             double fineAmount = 0.0;
-            if(book.getSubmitDate()!=null) {
-                fineAmount = studentService.calculateFine(book.getSubmitDate(), book.getReturnDate());
-            }
-            System.out.println("fineAmount:" + fineAmount);
+//            if(book.getSubmitDate()!=null) {
+//                fineAmount = studentService.calculateFine(book.getSubmitDate(), book.getReturnDate());
+//            }
+//            System.out.println("fineAmount:" + fineAmount);
             borrowedBooks.setFineAmount(fineAmount);
             borrowedBooksList.add(borrowedBooks);
         }
@@ -249,4 +306,6 @@ public class BookController {
             return "Book not found or not borrowed";
         }
     }
+
+
 }

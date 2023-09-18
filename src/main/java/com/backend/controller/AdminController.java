@@ -73,8 +73,12 @@ public class AdminController {
 
     @PostMapping("/students/add")
     public String addStudent(@RequestBody Student student) {
-        studentService.addStudent(student);
-        return "Student added successfully";
+        Student student1 = studentService.getStudentByName(student.getName());
+        if(student1 == null) {
+            studentService.addStudent(student);
+            return "Student added successfully";
+        }
+        return "Student with Same name already exist";
     }
 
     @PutMapping("/students/update")

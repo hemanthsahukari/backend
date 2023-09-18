@@ -44,4 +44,12 @@ public class BookStudentMap {
         this.studentId = studentId;
     }
 
+//    @Override
+//    public String toString() {
+//        return "BookStudentMap{" +
+//                "id=" + id +
+//                ", bookId=" + bookId +
+//                ", studentId=" + studentId +
+//                '}';
+//    }
 }

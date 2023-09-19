@@ -66,6 +66,51 @@ public class BookController {
         return bookService.getBooks();
     }
 
+    @GetMapping("/all/{name}")
+    public List<Book> getBooks(@PathVariable("name") String name) {
+        List<Book> bookList = bookService.getBooks();
+
+        Student currentLoggedInStudent = studentService.getCurrentLoggedInStudent(name);
+
+        Boolean isBorrowDisabled = false, isReturnDisabled = true;
+        for(Book book : bookList) {
+            List<BookStudentMap> bookStudentMapList = bookStudentMapService.getBookStudentMap();
+            long borrowedCopies = bookStudentMapList.stream()
+                    .filter(map -> map.getBookId() == book.getId() && map.getStudentId() == currentLoggedInStudent.getId())
+                    .count();
+            System.out.println("borrowedCopies:" + borrowedCopies);
+            if (borrowedCopies >= book.getFirstCopy()) {
+                isBorrowDisabled = true;
+            } else {
+                isBorrowDisabled = false;
+            }
+            // Check if there are no available copies of the book
+            long availableCopies = bookStudentMapList.stream()
+                    .filter(map -> map.getBookId() == book.getId())
+                    .count();
+            System.out.println("availableCopies:" + availableCopies);
+            if (availableCopies >= book.getFirstCopy()) {
+                isBorrowDisabled = true;
+            } else {
+                isBorrowDisabled = false;
+            }
+
+            // Check if the student has borrowed the boo
+            Boolean isBookBorrowed = bookStudentMapList.stream()
+                    .anyMatch(map -> map.getBookId() == book.getId() && map.getStudentId() == currentLoggedInStudent.getId());
+            if (!isBookBorrowed) {
+                isReturnDisabled = true;
+            } else {
+                isReturnDisabled = false;
+            }
+
+            book.setBorrowDisabled(isBorrowDisabled);
+            book.setReturnDisabled(isReturnDisabled);
+            bookService.updateBook(book);
+        }
+        return bookService.getBooks();
+    }
+
     @PutMapping
     public Book updateBook(@RequestBody Book book) {
         book.setFirstCopy(book.getCopiesAvailable());
@@ -78,53 +123,6 @@ public class BookController {
         return "Book Deleted";
     }
 
-//    @GetMapping("/disableStatus/{id}/{name}")
-//    public HashMap<String,Boolean> disableStatus(@PathVariable("id") long id, @PathVariable("name") String name) {
-//        HashMap<String,Boolean> disableStatusMap = new HashMap<>();
-//        Boolean isBorrowDisabled = false, isReturnDisabled = true;
-//        Book book = bookService.getBookById(id);
-//        Student currentLoggedInStudent = studentService.getCurrentLoggedInStudent(name);
-//
-//        List<BookStudentMap> bookStudentMapList = bookStudentMapService.getBookStudentMap();
-//        long borrowedCopies = bookStudentMapList.stream()
-//                .filter(map -> map.getBookId() == book.getId() && map.getStudentId() == currentLoggedInStudent.getId())
-//                .count();
-//        System.out.println("bookStudentMapList: ");
-//        for (BookStudentMap bookStudentMap : bookStudentMapList) {
-//            System.out.println(bookStudentMap);
-//        }
-//        System.out.println("borrowedCopies:" + borrowedCopies);
-//        if (borrowedCopies >= book.getFirstCopy()) {
-//            isBorrowDisabled = true;
-//        } else {
-//            isBorrowDisabled = false;
-//        }
-//// Check if there are no available copies of the book
-//        long availableCopies = bookStudentMapList.stream()
-//                .filter(map -> map.getBookId() == book.getId())
-//                .count();
-//        System.out.println("availableCopies:" + availableCopies);
-//        if (availableCopies >= book.getFirstCopy()) {
-//            isBorrowDisabled = true;
-//        } else {
-//            isBorrowDisabled = false;
-//        }
-//
-//// Check if the student has borrowed the boo
-//        Boolean isBookBorrowed = bookStudentMapList.stream()
-//                .anyMatch(map -> map.getBookId() == book.getId() && map.getStudentId() == currentLoggedInStudent.getId());
-//        if (!isBookBorrowed) {
-//            isReturnDisabled = true;
-//        } else {
-//            isReturnDisabled = false;
-//        }
-//        System.out.println("isBookBorrowed:" + isBookBorrowed);
-//
-//        disableStatusMap.put("isBorrowDisabled", isBorrowDisabled);
-//        disableStatusMap.put("isReturnDisabled", isReturnDisabled);
-//
-//        return disableStatusMap;
-//    }
     @PutMapping("/borrow/{id}/{name}")
     @ResponseBody
     public String borrowBook(@PathVariable("id") long id, @PathVariable("name") String name) {
@@ -306,6 +304,4 @@ public class BookController {
             return "Book not found or not borrowed";
         }
     }
-
-
 }

@@ -32,6 +32,26 @@ public class Book {
     private long copiesAvailable;
 
     @Column(name="firstCopy")
+    private long firstCopy;
+
+    private boolean isBorrowDisabled;
+    private boolean isReturnDisabled;
+    public boolean isBorrowDisabled() {
+        return isBorrowDisabled;
+    }
+
+    public void setBorrowDisabled(boolean borrowDisabled) {
+        isBorrowDisabled = borrowDisabled;
+    }
+
+    public boolean isReturnDisabled() {
+        return isReturnDisabled;
+    }
+
+    public void setReturnDisabled(boolean returnDisabled) {
+        isReturnDisabled = returnDisabled;
+    }
+
     public long getFirstCopy() {
         return firstCopy;
     }
@@ -40,7 +60,7 @@ public class Book {
         this.firstCopy = firstCopy;
     }
 
-    private long firstCopy;
+
     public Book(){
 
     }
